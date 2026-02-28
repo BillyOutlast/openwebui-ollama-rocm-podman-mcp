@@ -43,9 +43,7 @@ if ! systemctl start ai-shared-network.service; then
   fi
 fi
 
-systemctl enable vllm-rocm.service
-systemctl enable open-webui.service
-systemctl enable podman-mcp-server.service
+systemctl reset-failed vllm-rocm.service open-webui.service podman-mcp-server.service >/dev/null 2>&1 || true
 systemctl start --no-block vllm-rocm.service
 systemctl start --no-block open-webui.service
 systemctl start --no-block podman-mcp-server.service

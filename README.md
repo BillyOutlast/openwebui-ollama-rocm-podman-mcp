@@ -27,6 +27,9 @@ chmod +x install-rootful.sh
 sudo bash ./install-rootful.sh
 ```
 
+Note: with Quadlet-generated system units, `enable` may fail as "transient or generated".
+The rootful installer uses `start` only for those units.
+
 To remove the stack:
 
 ```bash
