@@ -1,0 +1,20 @@
+[Unit]
+Description=Podman MCP Server (HTTP mode)
+After=network-online.target
+Wants=network-online.target
+
+[Container]
+ContainerName=podman-mcp-server
+Image=docker.io/library/node:22-alpine
+Network=ai-shared.network
+PublishPort=8080:8080
+Volume=%t/podman/podman.sock:/run/podman/podman.sock
+Environment=CONTAINER_HOST=unix:///run/podman/podman.sock
+Exec=npx -y podman-mcp-server@latest --port 8080
+
+[Service]
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=default.target

@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+TARGET_DIR="${HOME}/.config/containers/systemd"
+REMOVE_DATA="${REMOVE_DATA:-false}"
+
+services=(
+  ai-shared-network.service
+  vllm-rocm.service
+  open-webui.service
+  podman-mcp-server.service
+)
+
+for svc in "${services[@]}"; do
+  systemctl --user disable --now "${svc}" 2>/dev/null || true
+done
+
+rm -f "${TARGET_DIR}/ai-shared.network"
+rm -f "${TARGET_DIR}/vllm-rocm.container"
+rm -f "${TARGET_DIR}/open-webui.container"
+rm -f "${TARGET_DIR}/podman-mcp-server.container"
+
+systemctl --user daemon-reload
+
+if [[ "${REMOVE_DATA}" == "true" ]]; then
+  rm -rf "${HOME}/.local/share/open-webui"
+  echo "Removed Open WebUI persistent data at ${HOME}/.local/share/open-webui"
+fi
+
+echo "Uninstalled Quadlet units and stopped services."
+echo "Kept ${TARGET_DIR}/stack.env and Hugging Face cache by default."
+echo "Set REMOVE_DATA=true to also remove Open WebUI data."

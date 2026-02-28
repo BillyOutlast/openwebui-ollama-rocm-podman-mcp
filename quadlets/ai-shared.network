@@ -1,0 +1,8 @@
+[Unit]
+Description=Shared network for AI services
+
+[Network]
+NetworkName=ai-shared
+
+[Install]
+WantedBy=default.target

@@ -1,0 +1,84 @@
+# Quadlets: vLLM ROCm + Open WebUI + Podman MCP Server
+
+The `quadlets/` directory contains rootless Podman Quadlets with a shared network:
+
+- `ai-shared.network`
+- `vllm-rocm.container`
+- `open-webui.container`
+- `podman-mcp-server.container`
+
+## Quick scripts (recommended)
+
+On the remote Linux host:
+
+```bash
+chmod +x install.sh uninstall.sh
+./install.sh
+```
+
+To remove the stack:
+
+```bash
+./uninstall.sh
+```
+
+Optional full data cleanup (Open WebUI data directory):
+
+```bash
+REMOVE_DATA=true ./uninstall.sh
+```
+
+## 1) Install files to user Quadlet directory
+
+```powershell
+mkdir "$HOME/.config/containers/systemd" -Force
+copy .\quadlets\*.network "$HOME/.config/containers/systemd\"
+copy .\quadlets\*.container "$HOME/.config/containers/systemd\"
+copy .\quadlets\stack.env.example "$HOME/.config/containers/systemd\stack.env"
+```
+
+Then edit `~/.config/containers/systemd/stack.env` and set `HF_TOKEN`.
+
+## 2) Reload and start services
+
+```powershell
+systemctl --user daemon-reload
+systemctl --user enable --now ai-shared-network.service
+systemctl --user enable --now vllm-rocm.service
+systemctl --user enable --now open-webui.service
+systemctl --user enable --now podman-mcp-server.service
+```
+
+## 3) Endpoints
+
+- Open WebUI: http://localhost:3000
+- vLLM OpenAI API: http://localhost:8000/v1
+- Podman MCP HTTP: http://localhost:8080/mcp
+
+## vLLM server profile
+
+`quadlets/vllm-rocm.container` is configured to serve:
+
+- Model: `Qwen/Qwen3.5-35B-A3B-FP8`
+- `--tensor-parallel 4`
+- `-dp 8 --enable-expert-parallel`
+- `--mm-encoder-tp-mode data --mm-processor-cache-type shm`
+- `--reasoning-parser qwen3 --enable-prefix-caching`
+- Tool calling enabled: `--enable-auto-tool-choice --tool-call-parser qwen3_coder`
+- ROCm env: `MIOPEN_USER_DB_PATH`, `MIOPEN_FIND_MODE=FAST`, `VLLM_ROCM_USE_AITER=1`, `SAFETENSORS_FAST_GPU=1`
+
+The unit also persists MIOpen cache at `~/.cache/miopen` and mounts it into the container.
+
+After changing `quadlets/vllm-rocm.container`:
+
+```bash
+systemctl --user daemon-reload
+systemctl --user restart vllm-rocm.service
+journalctl --user -u vllm-rocm.service -n 100 --no-pager
+```
+
+## Notes
+
+- `podman-mcp-server` is launched via `npx` inside a Node container because the upstream project is distributed as binary/npm package.
+- The vLLM unit includes the ROCm flags from your `docker run` example.
+- If this host is not Linux with ROCm devices (`/dev/kfd`, `/dev/dri`), `vllm-rocm` will fail to start.
