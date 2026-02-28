@@ -15,6 +15,8 @@ STACK_ENV="${ROOT_STACK_DIR}/stack.env"
 
 mkdir -p "${TARGET_DIR}"
 mkdir -p "${ROOT_STACK_DIR}"
+mkdir -p "/root/.cache/huggingface"
+mkdir -p "/root/.cache/miopen"
 
 cp "${QUADLETS_DIR}"/*.network "${TARGET_DIR}/"
 cp "${QUADLETS_DIR}"/*.container "${TARGET_DIR}/"

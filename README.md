@@ -177,6 +177,15 @@ For rootful install, set HF token in:
 sudoedit /root/.config/containers/systemd/stack.env
 ```
 
+If logs show `statfs ... no such file or directory` for cache mounts, create them and reset restart backoff:
+
+```bash
+sudo mkdir -p /root/.cache/huggingface /root/.cache/miopen
+sudo systemctl reset-failed vllm-rocm.service
+sudo systemctl restart vllm-rocm.service
+sudo journalctl -u vllm-rocm.service -f
+```
+
 ## Notes
 
 - `podman-mcp-server` is launched via `npx` inside a Node container because the upstream project is distributed as binary/npm package.

@@ -83,6 +83,8 @@ preflight_rootless_podman() {
 preflight_rootless_podman
 
 mkdir -p "${TARGET_DIR}"
+mkdir -p "${HOME}/.cache/huggingface"
+mkdir -p "${HOME}/.cache/miopen"
 
 cp "${QUADLETS_DIR}"/*.network "${TARGET_DIR}/"
 cp "${QUADLETS_DIR}"/*.container "${TARGET_DIR}/"
