@@ -39,7 +39,7 @@ if [[ ! -f "${STACK_ENV}" ]]; then
 fi
 
 systemctl --user daemon-reload
-systemctl --user enable --now ai-shared-network.service
+systemctl --user start ai-shared-network.service
 systemctl --user enable --now vllm-rocm.service
 systemctl --user enable --now open-webui.service
 systemctl --user enable --now podman-mcp-server.service
