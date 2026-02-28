@@ -77,6 +77,31 @@ systemctl --user restart vllm-rocm.service
 journalctl --user -u vllm-rocm.service -n 100 --no-pager
 ```
 
+## Troubleshooting: user systemd bus
+
+If you see:
+
+`Failed to connect to user scope bus via local transport: $DBUS_SESSION_BUS_ADDRESS and $XDG_RUNTIME_DIR not defined`
+
+run:
+
+```bash
+export XDG_RUNTIME_DIR=/run/user/$(id -u)
+export DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/$(id -u)/bus
+```
+
+Then retry:
+
+```bash
+./install.sh
+```
+
+For persistent remote-user services, enable lingering once:
+
+```bash
+sudo loginctl enable-linger $USER
+```
+
 ## Notes
 
 - `podman-mcp-server` is launched via `npx` inside a Node container because the upstream project is distributed as binary/npm package.

@@ -4,6 +4,25 @@ set -euo pipefail
 TARGET_DIR="${HOME}/.config/containers/systemd"
 REMOVE_DATA="${REMOVE_DATA:-false}"
 
+ensure_user_bus() {
+  if [[ -z "${XDG_RUNTIME_DIR:-}" ]]; then
+    export XDG_RUNTIME_DIR="/run/user/$(id -u)"
+  fi
+
+  if [[ -z "${DBUS_SESSION_BUS_ADDRESS:-}" ]] && [[ -S "${XDG_RUNTIME_DIR}/bus" ]]; then
+    export DBUS_SESSION_BUS_ADDRESS="unix:path=${XDG_RUNTIME_DIR}/bus"
+  fi
+
+  if ! systemctl --user show-environment >/dev/null 2>&1; then
+    echo "Cannot reach systemd user bus."
+    echo "Try: export XDG_RUNTIME_DIR=/run/user/\$(id -u)"
+    echo "     export DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u)/bus"
+    exit 1
+  fi
+}
+
+ensure_user_bus
+
 services=(
   ai-shared-network.service
   vllm-rocm.service

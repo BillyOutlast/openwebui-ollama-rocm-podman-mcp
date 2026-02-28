@@ -6,6 +6,28 @@ QUADLETS_DIR="${SCRIPT_DIR}/quadlets"
 TARGET_DIR="${HOME}/.config/containers/systemd"
 STACK_ENV="${TARGET_DIR}/stack.env"
 
+ensure_user_bus() {
+  if [[ -z "${XDG_RUNTIME_DIR:-}" ]]; then
+    export XDG_RUNTIME_DIR="/run/user/$(id -u)"
+  fi
+
+  if [[ -z "${DBUS_SESSION_BUS_ADDRESS:-}" ]] && [[ -S "${XDG_RUNTIME_DIR}/bus" ]]; then
+    export DBUS_SESSION_BUS_ADDRESS="unix:path=${XDG_RUNTIME_DIR}/bus"
+  fi
+
+  if ! systemctl --user show-environment >/dev/null 2>&1; then
+    echo "Cannot reach systemd user bus."
+    echo "Try one of these on the remote host, then rerun ./install.sh:"
+    echo "  1) loginctl enable-linger ${USER}"
+    echo "  2) Start a real user login session (ssh/login shell), then run again"
+    echo "  3) export XDG_RUNTIME_DIR=/run/user/\$(id -u)"
+    echo "     export DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/\$(id -u)/bus"
+    exit 1
+  fi
+}
+
+ensure_user_bus
+
 mkdir -p "${TARGET_DIR}"
 
 cp "${QUADLETS_DIR}"/*.network "${TARGET_DIR}/"
