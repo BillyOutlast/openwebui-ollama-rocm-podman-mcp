@@ -84,12 +84,15 @@ journalctl --user -u vllm-rocm.service -f
 `quadlets/vllm-rocm.container` is configured to serve:
 
 - Model: `Qwen/Qwen3.5-35B-A3B-FP8`
+- `--trust-remote-code`
 - `--tensor-parallel 4`
 - `-dp 8 --enable-expert-parallel`
 - `--mm-encoder-tp-mode data --mm-processor-cache-type shm`
 - `--reasoning-parser qwen3 --enable-prefix-caching`
 - Tool calling enabled: `--enable-auto-tool-choice --tool-call-parser qwen3_coder`
 - ROCm env: `MIOPEN_USER_DB_PATH`, `MIOPEN_FIND_MODE=FAST`, `VLLM_ROCM_USE_AITER=1`, `SAFETENSORS_FAST_GPU=1`
+
+The serve command uses the model as a positional argument (vLLM `--model` flag is deprecated for `vllm serve`).
 
 The unit also persists MIOpen cache at `~/.cache/miopen` and mounts it into the container.
 
