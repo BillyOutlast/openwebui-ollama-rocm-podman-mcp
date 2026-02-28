@@ -129,6 +129,18 @@ grep "^$USER:" /etc/subgid || echo "$USER:100000:65536" | sudo tee -a /etc/subgi
 sudo chmod u+s /usr/bin/newuidmap /usr/bin/newgidmap
 ```
 
+If it still fails, also verify/enable user namespaces:
+
+```bash
+cat /proc/sys/user/max_user_namespaces
+cat /proc/sys/kernel/unprivileged_userns_clone
+stat -c '%a %U:%G %A' /usr/bin/newuidmap /usr/bin/newgidmap
+
+echo 'user.max_user_namespaces=28633' | sudo tee /etc/sysctl.d/99-rootless.conf
+echo 'kernel.unprivileged_userns_clone=1' | sudo tee -a /etc/sysctl.d/99-rootless.conf
+sudo sysctl --system
+```
+
 Then fully log out and log back in before running `./install.sh` again.
 
 ## Notes

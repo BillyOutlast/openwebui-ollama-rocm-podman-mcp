@@ -37,6 +37,12 @@ preflight_rootless_podman() {
   if ! podman unshare true >/dev/null 2>&1; then
     local current_user
     current_user="$(id -un)"
+    local userns_max userns_clone newuidmap_mode newgidmap_mode
+
+    userns_max="$(cat /proc/sys/user/max_user_namespaces 2>/dev/null || echo unknown)"
+    userns_clone="$(cat /proc/sys/kernel/unprivileged_userns_clone 2>/dev/null || echo unknown)"
+    newuidmap_mode="$(stat -c '%a %U:%G %A' /usr/bin/newuidmap 2>/dev/null || echo missing)"
+    newgidmap_mode="$(stat -c '%a %U:%G %A' /usr/bin/newgidmap 2>/dev/null || echo missing)"
 
     echo "Rootless Podman namespace setup is not working."
     echo "Detected failure pattern: newuidmap/newgidmap (exit status 1)."
@@ -52,12 +58,19 @@ preflight_rootless_podman() {
     else
       echo "  - /etc/subgid entry for ${current_user}: MISSING"
     fi
+    echo "  - /proc/sys/user/max_user_namespaces: ${userns_max}"
+    echo "  - /proc/sys/kernel/unprivileged_userns_clone: ${userns_clone}"
+    echo "  - /usr/bin/newuidmap perms: ${newuidmap_mode}"
+    echo "  - /usr/bin/newgidmap perms: ${newgidmap_mode}"
     echo
     echo "Ask an admin to run (Debian/Ubuntu):"
     echo "  sudo apt-get update && sudo apt-get install -y uidmap"
     echo "  grep '^${current_user}:' /etc/subuid || echo '${current_user}:100000:65536' | sudo tee -a /etc/subuid"
     echo "  grep '^${current_user}:' /etc/subgid || echo '${current_user}:100000:65536' | sudo tee -a /etc/subgid"
     echo "  sudo chmod u+s /usr/bin/newuidmap /usr/bin/newgidmap"
+    echo "  echo 'user.max_user_namespaces=28633' | sudo tee /etc/sysctl.d/99-rootless.conf"
+    echo "  echo 'kernel.unprivileged_userns_clone=1' | sudo tee -a /etc/sysctl.d/99-rootless.conf"
+    echo "  sudo sysctl --system"
     echo
     echo "Then fully log out and log back in, and rerun ./install.sh"
     exit 1

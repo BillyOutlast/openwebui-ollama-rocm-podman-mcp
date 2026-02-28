@@ -47,11 +47,23 @@ fi
 if podman unshare true >/dev/null 2>&1; then
   ok "rootless Podman namespace works (newuidmap/newgidmap OK)"
 else
+  USERNS_MAX="$(cat /proc/sys/user/max_user_namespaces 2>/dev/null || echo unknown)"
+  USERNS_CLONE="$(cat /proc/sys/kernel/unprivileged_userns_clone 2>/dev/null || echo unknown)"
+  NEWUIDMAP_PERMS="$(stat -c '%a %U:%G %A' /usr/bin/newuidmap 2>/dev/null || echo missing)"
+  NEWGIDMAP_PERMS="$(stat -c '%a %U:%G %A' /usr/bin/newgidmap 2>/dev/null || echo missing)"
+
   fail "rootless Podman namespace check failed"
+  echo "      /proc/sys/user/max_user_namespaces=${USERNS_MAX}"
+  echo "      /proc/sys/kernel/unprivileged_userns_clone=${USERNS_CLONE}"
+  echo "      /usr/bin/newuidmap perms: ${NEWUIDMAP_PERMS}"
+  echo "      /usr/bin/newgidmap perms: ${NEWGIDMAP_PERMS}"
   echo "      sudo apt-get update && sudo apt-get install -y uidmap"
   echo "      grep \"^$USER:\" /etc/subuid || echo \"$USER:100000:65536\" | sudo tee -a /etc/subuid"
   echo "      grep \"^$USER:\" /etc/subgid || echo \"$USER:100000:65536\" | sudo tee -a /etc/subgid"
   echo "      sudo chmod u+s /usr/bin/newuidmap /usr/bin/newgidmap"
+  echo "      echo 'user.max_user_namespaces=28633' | sudo tee /etc/sysctl.d/99-rootless.conf"
+  echo "      echo 'kernel.unprivileged_userns_clone=1' | sudo tee -a /etc/sysctl.d/99-rootless.conf"
+  echo "      sudo sysctl --system"
   echo "      log out and log back in"
   FAILED=1
 fi
