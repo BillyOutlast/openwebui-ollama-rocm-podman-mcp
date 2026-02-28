@@ -170,13 +170,22 @@ sudo bash ./install-rootful.sh
 ```
 
 If logs show device mapping errors for `/dev/dri`, verify your runtime and GPU device nodes.
-The installers skip starting `ollama-rocm.service` when `/dev/kfd` or `/dev/dri` is missing.
+The installers skip starting `ollama-rocm.service` when `/dev/kfd` or `/dev/dri` is missing,
+or when `/dev/dri` exists but has no `renderD*` / `card*` nodes.
 
 Verify GPU device nodes:
 
 ```bash
 ls -l /dev/kfd
 ls -l /dev/dri
+ls -l /dev/dri/renderD* /dev/dri/card*
+```
+
+Run bundled diagnostics helper:
+
+```bash
+chmod +x ./diag-gpu.sh
+./diag-gpu.sh
 ```
 
 To force-refresh the Ollama image manually:
@@ -192,4 +201,4 @@ sudo systemctl restart ollama-rocm.service
 
 - `podman-mcp-server` is launched via `npx` inside a Node container because the upstream project is distributed as binary/npm package.
 - The Ollama unit mirrors your ROCm `docker run` flags.
-- If this host is not Linux with ROCm devices (`/dev/kfd`, `/dev/dri`), `ollama` will fail to start.
+- If this host is not Linux with ROCm devices (`/dev/kfd`, `/dev/dri/renderD*`), `ollama` will fail to start.

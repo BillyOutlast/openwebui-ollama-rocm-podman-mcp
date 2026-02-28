@@ -75,7 +75,11 @@ else
 fi
 
 if [[ -d /dev/dri ]]; then
-  ok "/dev/dri present"
+  if compgen -G "/dev/dri/renderD*" >/dev/null || compgen -G "/dev/dri/card*" >/dev/null; then
+    ok "/dev/dri has render/card device nodes"
+  else
+    warn "/dev/dri exists but has no render/card nodes (ROCm container will not start)"
+  fi
 else
   warn "/dev/dri missing (ROCm container will not start)"
 fi

@@ -102,6 +102,9 @@ fi
 if [[ ! -d /dev/dri ]]; then
   echo "Skipping ollama-rocm.service: /dev/dri is missing on this host."
   OLLAMA_READY=false
+elif ! compgen -G "/dev/dri/renderD*" >/dev/null && ! compgen -G "/dev/dri/card*" >/dev/null; then
+  echo "Skipping ollama-rocm.service: /dev/dri has no render/card nodes on this host."
+  OLLAMA_READY=false
 fi
 
 if [[ "${OLLAMA_READY}" == "true" ]]; then
@@ -120,7 +123,7 @@ echo "  - podman.socket"
 if [[ "${OLLAMA_READY}" == "true" ]]; then
   echo "  - ollama-rocm.service"
 else
-  echo "  - ollama-rocm.service (skipped: missing /dev/kfd or /dev/dri)"
+  echo "  - ollama-rocm.service (skipped: missing /dev/kfd, /dev/dri, or /dev/dri nodes)"
 fi
 echo "  - open-webui.service"
 echo "  - podman-mcp-server.service"
