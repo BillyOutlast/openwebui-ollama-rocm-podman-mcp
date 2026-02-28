@@ -5,7 +5,7 @@ Wants=network-online.target
 
 [Container]
 ContainerName=vllm-rocm
-Image=docker.io/vllm/vllm-openai-rocm:nightly
+Image=docker.io/vllm/vllm-openai-rocm:latest
 Pull=always
 Network=ai-shared.network
 PublishPort=8000:8000
@@ -23,7 +23,8 @@ PodmanArgs=--device=/dev/kfd
 PodmanArgs=--device=/dev/dri/renderD128
 PodmanArgs=--device=/dev/dri/renderD129
 PodmanArgs=--ipc=host
-Exec=Qwen/Qwen3.5-35B-A3B-FP8 --tensor-parallel 4 -dp 8 --enable-expert-parallel --mm-encoder-tp-mode data --mm-processor-cache-type shm --reasoning-parser qwen3 --enable-prefix-caching --enable-auto-tool-choice --tool-call-parser qwen3_coder
+PodmanArgs=--entrypoint=/bin/sh
+Exec=-lc "pip install --upgrade --no-cache-dir transformers && exec vllm serve Qwen/Qwen3.5-35B-A3B-FP8 --tensor-parallel 4 -dp 8 --enable-expert-parallel --mm-encoder-tp-mode data --mm-processor-cache-type shm --reasoning-parser qwen3 --enable-prefix-caching --enable-auto-tool-choice --tool-call-parser qwen3_coder"
 
 [Service]
 Restart=always
