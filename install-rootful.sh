@@ -18,6 +18,9 @@ cp "${QUADLETS_DIR}"/*.container "${TARGET_DIR}/"
 
 systemctl daemon-reload
 
+systemctl enable podman.socket >/dev/null 2>&1 || true
+systemctl start podman.socket
+
 if ! systemctl start ai-shared-network.service; then
   echo "ai-shared-network.service failed; trying direct Podman network create/reuse..."
   if podman network exists ai-shared; then
@@ -61,6 +64,7 @@ systemctl start --no-block podman-mcp-server.service
 echo
 echo "Installed and started rootful services:"
 echo "  - ai-shared-network.service"
+echo "  - podman.socket"
 if [[ "${OLLAMA_READY}" == "true" ]]; then
   echo "  - ollama-rocm.service"
 else

@@ -23,7 +23,7 @@ If rootless setup keeps failing with `newuidmap/newgidmap` errors despite correc
 use the rootful fallback:
 
 ```bash
-chmod +x install-rootful.sh
+chmod +x install-rootful.sh uninstall-rootful.sh
 sudo bash ./install-rootful.sh
 ```
 
@@ -36,10 +36,22 @@ To remove the stack:
 ./uninstall.sh
 ```
 
+For rootful installs:
+
+```bash
+sudo bash ./uninstall-rootful.sh
+```
+
 Optional full data cleanup (Open WebUI data directory):
 
 ```bash
 REMOVE_DATA=true ./uninstall.sh
+```
+
+Rootful optional full data cleanup:
+
+```bash
+sudo REMOVE_DATA=true bash ./uninstall-rootful.sh
 ```
 
 ## 1) Install files to user Quadlet directory
@@ -55,6 +67,8 @@ copy .\quadlets\*.container "$HOME/.config/containers/systemd\"
 ```powershell
 systemctl --user daemon-reload
 systemctl --user start --no-block ai-shared-network.service
+systemctl --user enable podman.socket
+systemctl --user start --no-block podman.socket
 systemctl --user enable ollama-rocm.service
 systemctl --user enable open-webui.service
 systemctl --user enable podman-mcp-server.service
@@ -66,6 +80,8 @@ systemctl --user start --no-block podman-mcp-server.service
 First startup can take a long time while images/models are pulled. Monitor with:
 
 ```bash
+systemctl --user status podman.socket --no-pager
+journalctl --user -u podman-mcp-server.service -f
 systemctl --user status ollama-rocm.service --no-pager
 journalctl --user -u ollama-rocm.service -f
 ```

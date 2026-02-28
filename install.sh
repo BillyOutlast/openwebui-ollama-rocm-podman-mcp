@@ -88,6 +88,8 @@ cp "${QUADLETS_DIR}"/*.container "${TARGET_DIR}/"
 
 systemctl --user daemon-reload
 systemctl --user start --no-block ai-shared-network.service
+systemctl --user enable podman.socket
+systemctl --user start --no-block podman.socket
 systemctl --user enable ollama-rocm.service
 systemctl --user enable open-webui.service
 systemctl --user enable podman-mcp-server.service
@@ -114,6 +116,7 @@ systemctl --user start --no-block podman-mcp-server.service
 echo
 echo "Installed and started services:"
 echo "  - ai-shared-network.service"
+echo "  - podman.socket"
 if [[ "${OLLAMA_READY}" == "true" ]]; then
   echo "  - ollama-rocm.service"
 else
