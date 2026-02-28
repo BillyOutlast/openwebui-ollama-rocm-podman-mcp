@@ -3,6 +3,7 @@
 The `quadlets/` directory contains rootless Podman Quadlets with a shared network:
 
 - `ai-shared.network`
+- `ai-stack.pod`
 - `ollama-rocm.container`
 - `open-webui.container`
 - `podman-mcp-server.container`
@@ -62,6 +63,7 @@ sudo REMOVE_DATA=true bash ./uninstall-rootful.sh
 ```powershell
 mkdir "$HOME/.config/containers/systemd" -Force
 copy .\quadlets\*.network "$HOME/.config/containers/systemd\"
+copy .\quadlets\*.pod "$HOME/.config/containers/systemd\"
 copy .\quadlets\*.container "$HOME/.config/containers/systemd\"
 ```
 
@@ -72,6 +74,8 @@ systemctl --user daemon-reload
 systemctl --user start --no-block ai-shared-network.service
 systemctl --user enable podman.socket
 systemctl --user start --no-block podman.socket
+systemctl --user enable ai-stack-pod.service
+systemctl --user start --no-block ai-stack-pod.service
 systemctl --user enable ollama-rocm.service
 systemctl --user enable open-webui.service
 systemctl --user enable podman-mcp-server.service
@@ -203,7 +207,6 @@ sudo systemctl restart ollama-rocm.service
 ## Notes
 
 - `podman-mcp-server` is launched via `npx` inside a Node container because the upstream project is distributed as binary/npm package.
-- `podman-mcp-server.container` uses `Pull=missing` to avoid repeated Docker Hub pulls on every restart.
 - The Ollama unit mirrors your ROCm `docker run` flags.
 - If this host is not Linux with ROCm devices (`/dev/kfd`, `/dev/dri/renderD*`), `ollama` will fail to start.
 - Installers automatically replace the generic `/dev/dri` mapping with explicit detected nodes (for example `/dev/dri/renderD128`) to avoid Podman hosts that reject directory device mappings.

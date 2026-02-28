@@ -25,6 +25,7 @@ ensure_user_bus
 
 services=(
   ai-shared-network.service
+  ai-stack-pod.service
   ollama-rocm.service
   open-webui.service
   podman-mcp-server.service
@@ -35,6 +36,7 @@ for svc in "${services[@]}"; do
 done
 
 rm -f "${TARGET_DIR}/ai-shared.network"
+rm -f "${TARGET_DIR}/ai-stack.pod"
 rm -f "${TARGET_DIR}/ollama-rocm.container"
 rm -f "${TARGET_DIR}/open-webui.container"
 rm -f "${TARGET_DIR}/podman-mcp-server.container"

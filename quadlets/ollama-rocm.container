@@ -1,13 +1,12 @@
 [Unit]
 Description=Ollama ROCm API
-After=network-online.target
-Wants=network-online.target
+After=network-online.target ai-stack-pod.service
+Wants=network-online.target ai-stack-pod.service
 
 [Container]
 ContainerName=ollama
 Image=docker.io/ollama/ollama:rocm
-Network=ai-shared.network
-PublishPort=11434:11434
+Pod=ai-stack.pod
 Volume=ollama:/root/.ollama:Z
 PodmanArgs=--device=/dev/kfd
 PodmanArgs=--device=/dev/dri

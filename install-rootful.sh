@@ -58,6 +58,7 @@ mkdir -p "${TARGET_DIR}"
 mkdir -p "${OPEN_WEBUI_DATA_DIR}"
 
 cp "${QUADLETS_DIR}"/*.network "${TARGET_DIR}/"
+cp "${QUADLETS_DIR}"/*.pod "${TARGET_DIR}/"
 cp "${QUADLETS_DIR}"/*.container "${TARGET_DIR}/"
 configure_ollama_dri_devices
 
@@ -83,7 +84,8 @@ if ! systemctl start ai-shared-network.service; then
   fi
 fi
 
-systemctl reset-failed ollama-rocm.service open-webui.service podman-mcp-server.service >/dev/null 2>&1 || true
+systemctl reset-failed ai-stack-pod.service ollama-rocm.service open-webui.service podman-mcp-server.service >/dev/null 2>&1 || true
+systemctl start --no-block ai-stack-pod.service
 
 OLLAMA_READY=true
 
@@ -113,6 +115,7 @@ echo
 echo "Installed and started rootful services:"
 echo "  - ai-shared-network.service"
 echo "  - podman.socket"
+echo "  - ai-stack-pod.service"
 if [[ "${OLLAMA_READY}" == "true" ]]; then
   echo "  - ollama-rocm.service"
 else

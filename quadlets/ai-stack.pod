@@ -1,0 +1,14 @@
+[Unit]
+Description=Shared Pod for Ollama + Open WebUI + Podman MCP
+After=network-online.target ai-shared-network.service
+Wants=network-online.target ai-shared-network.service
+
+[Pod]
+PodName=ai-stack
+Network=ai-shared.network
+PublishPort=11434:11434
+PublishPort=3000:8080
+PublishPort=8080:8080
+
+[Install]
+WantedBy=default.target
