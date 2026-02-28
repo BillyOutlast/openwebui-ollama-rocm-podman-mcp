@@ -203,3 +203,4 @@ sudo systemctl restart ollama-rocm.service
 - The Ollama unit mirrors your ROCm `docker run` flags.
 - If this host is not Linux with ROCm devices (`/dev/kfd`, `/dev/dri/renderD*`), `ollama` will fail to start.
 - Installers automatically replace the generic `/dev/dri` mapping with explicit detected nodes (for example `/dev/dri/renderD128`) to avoid Podman hosts that reject directory device mappings.
+- Installers create the Open WebUI host data directory automatically (`$HOME/.local/share/open-webui` for rootless, `/root/.local/share/open-webui` for rootful).

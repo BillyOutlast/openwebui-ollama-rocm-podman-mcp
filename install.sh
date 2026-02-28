@@ -4,6 +4,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 QUADLETS_DIR="${SCRIPT_DIR}/quadlets"
 TARGET_DIR="${HOME}/.config/containers/systemd"
+OPEN_WEBUI_DATA_DIR="${HOME}/.local/share/open-webui"
 
 configure_ollama_dri_devices() {
   local ollama_quadlet="${TARGET_DIR}/ollama-rocm.container"
@@ -120,6 +121,7 @@ preflight_rootless_podman() {
 preflight_rootless_podman
 
 mkdir -p "${TARGET_DIR}"
+mkdir -p "${OPEN_WEBUI_DATA_DIR}"
 
 cp "${QUADLETS_DIR}"/*.network "${TARGET_DIR}/"
 cp "${QUADLETS_DIR}"/*.container "${TARGET_DIR}/"

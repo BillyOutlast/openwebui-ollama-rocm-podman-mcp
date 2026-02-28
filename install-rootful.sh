@@ -10,6 +10,7 @@ fi
 SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 QUADLETS_DIR="${SCRIPT_DIR}/quadlets"
 TARGET_DIR="/etc/containers/systemd"
+OPEN_WEBUI_DATA_DIR="/root/.local/share/open-webui"
 
 configure_ollama_dri_devices() {
   local ollama_quadlet="${TARGET_DIR}/ollama-rocm.container"
@@ -50,6 +51,7 @@ configure_ollama_dri_devices() {
 }
 
 mkdir -p "${TARGET_DIR}"
+mkdir -p "${OPEN_WEBUI_DATA_DIR}"
 
 cp "${QUADLETS_DIR}"/*.network "${TARGET_DIR}/"
 cp "${QUADLETS_DIR}"/*.container "${TARGET_DIR}/"
